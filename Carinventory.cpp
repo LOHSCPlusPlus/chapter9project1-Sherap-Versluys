@@ -14,7 +14,25 @@ double Acceleration;
 int Model;
 char Origin[MAX_CHAR_LEN];
 bool ValidEntry;
+Car();
 };
+
+void PrintCar(Car a);
+
+Car::Car(){
+  for(int index = 0; index < MAX_CHAR_LEN; index++){
+    carName[index] = 0;
+    Origin[index] = 0;
+    }
+    MPG = 0;
+    Cylinders = 0;
+    Displacement = 0;
+    Horsepower = 0;
+    Weight = 0;
+    Acceleration = 0;
+    Model = 0;
+    ValidEntry = false;
+  }
 
 const int MAX_CARS=500;
 Car readCars(ifstream &inFile){
@@ -35,10 +53,11 @@ Car readCars(ifstream &inFile){
     inFile.ignore(100,';');
     inFile >> car.Model;
     inFile.ignore(100,';');
-    inFile >> car.ValidEntry;
+    inFile >> car.Origin;
     inFile.ignore(100,'\n');
     // If we reached the end of the file while reading, then the entry is not valid
     car.ValidEntry = !inFile.eof();
+  //PrintCar(car);
     return car;
 }
 int readInt(const char prompt[]){
@@ -70,7 +89,7 @@ double readDouble(const char prompt[]){
 }
 
 int readCarData(Car cars[]){
-ifstream carsFile("cars");
+ifstream carsFile("cars.txt");
     int numCars = 0;
     while(carsFile.peek() != EOF && numCars < MAX_CARS) {
         cars[numCars] = readCars(carsFile);
@@ -111,40 +130,64 @@ void removeCar(Car cars[]){
   do{
   removeIndex = readInt("Enter an index to remove: ");
   cars[removeIndex].ValidEntry = false;
-  }while(removeIndex > 0 || removeIndex <= 500);
+  }while(removeIndex < 0 || removeIndex >= 500);
 }
 
 void addCar(Car cars[]){
   for(int index = 0; index < 500; index ++){
     if (cars[index].ValidEntry == false){
-      cout << "Enter the details of the car you want to add:" << endl;
+      cout << "Enter the name of the car you want to add:" << endl;
       cin.ignore(11,'\n');
-      cin.getline(cars[index].carName, MAX_CARS);
+      cin.getline(cars[index].carName,Car::MAX_CHAR_LEN);
       cars[index].MPG = readInt("Enter the car's MPG: ");
       cars[index].Cylinders = readInt("Enter the amount of cylinders: ");
       cars[index].Displacement = readInt("Enter the displacement of the engine: ");
       cars[index].Horsepower = readInt("Enter the horsepower rating: ");
       cars[index].Weight = readInt("Enter the weight of the car: ");
       cars[index].Acceleration = readDouble("Enter the 0-60 time: ");
+      cin.ignore(11,'\n');
       cout << "Enter the car's origin: ";
       cin >> cars[index].Origin;
+      cars[index].ValidEntry = true;
+      return;
     }
-    else{
-      cout << "The databse is full.";
-      break;
     }
+      cout << "The databse is full." << endl;
   }
-}
 
-void returnMenu(){
-  cout << 
+void returnMenu(Car cars[]){
+  int userInput = 0;  
+  while(userInput !=5){
+      cout << "Choose a number option to continue or type quit." << endl;
+      cout << "1. Display the car list" << endl;
+      cout << "2. Remove a car from the list" << endl;
+      cout << "3. Add a car to the list" << endl;
+      cout << "4. Display cars by origin" << endl;
+      cout << "5. Quit" << endl;
+      cin >> userInput;
+
+    if(userInput == 1){
+    printCars(cars);
+    }
+    if(userInput == 2){
+    removeCar(cars);  
+    }
+    if(userInput == 3){
+    addCar(cars);  
+    }
+    if(userInput == 4){
+    printCarsByOrigin(cars);  
+    }
+    if(userInput == 5){
+      cout << "You decided to quit.";
+      break;
+        }
 }
+  }
 
 int main(){
-Car cars[MAX_CARS];
-printCars(cars);
-printCarsByOrigin(cars);
-removeCar(cars);
-addCar(cars);
-
+Car carList[MAX_CARS];
+readCarData(carList);
+//printCars(carList);
+returnMenu(carList);
 }
